@@ -75,17 +75,23 @@ Legend: **PK** primary key · **FK** foreign key (→target, on-delete) · **U**
 **U**: `(user_id, location_id)`.
 
 ### §audit_logs  (append-only)
+
+> Reuses the proven `share` actor/target/meta design (kept over a before/after diff — richer, already wired to a `RecordAuditEvent` use case + event subscriber). Table renamed from `audit_logs_logs` → `audit_logs` (I1.0); `business_id` FK is repointed to `businesses` in I1.1.
+
 | Column | Type | Null | Default | Key | Notes |
 |---|---|---|---|---|---|
 | id | BIGINT UNSIGNED | NN | auto | PK | |
-| business_id | BIGINT UNSIGNED | NULL | | I | null for super_admin actions |
-| user_id | BIGINT UNSIGNED | NULL | | FK→users (set null), I | actor |
-| action | VARCHAR(64) | NN | | | e.g. `sale.close` |
-| entity_type | VARCHAR(64) | NN | | I (w/ entity_id) | |
-| entity_id | BIGINT UNSIGNED | NULL | | | |
-| before_json | JSON | NULL | | | null on create |
-| after_json | JSON | NULL | | | null on delete |
-| at | TIMESTAMP | NN | | | action time |
+| ulid | CHAR(26) | NN | | U | external id / route key |
+| business_id | BIGINT UNSIGNED | NULL | | FK→businesses (set null), I | null for super_admin actions |
+| actor_id | BIGINT UNSIGNED | NULL | | FK→users (set null), I | who acted |
+| actor_type | VARCHAR(64) | NN | | | `User` / `System` / `Anonymous` (ActorType enum) |
+| action | VARCHAR(120) | NN | | I | e.g. `auth.login.success`, `invitation.issued` |
+| target_type | VARCHAR(64) | NULL | | I (w/ target_id) | entity acted on, e.g. `Invitation` |
+| target_id | VARCHAR(26) | NULL | | | target's ulid |
+| ip | VARCHAR(45) | NULL | | | request IP |
+| user_agent | VARCHAR(512) | NULL | | | request UA |
+| meta | JSON | NULL | | | action-specific payload (e.g. role change from/to) |
+| created_at | TIMESTAMP | NN | useCurrent | I | action time (no `updated_at`) |
 
 *No `updated_at` — rows are immutable (BR-AUDIT-02).*
 
