@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Models\User;
+use App\Modules\Businesses\Enums\UserStatus;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -13,8 +15,8 @@ use Livewire\Volt\Component;
 
 new #[Layout('layouts.auth')] class extends Component
 {
-    #[Validate('required|string|email')]
-    public string $email = '';
+    #[Validate('required|string')]
+    public string $login = '';
 
     #[Validate('required|string')]
     public string $password = '';
@@ -26,11 +28,23 @@ new #[Layout('layouts.auth')] class extends Component
         $this->validate();
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+        $input = trim($this->login);
+        $isEmail = filter_var($input, FILTER_VALIDATE_EMAIL) !== false;
+
+        $user = $isEmail
+            ? User::query()->where('email', $input)->first()
+            : User::query()->where('username', $input)->first();
+
+        $terminated = $user !== null && $user->status === UserStatus::Terminated;
+
+        if ($user === null || $terminated || ! Auth::attempt(
+            ['email' => $user->email, 'password' => $this->password],
+            $this->remember,
+        )) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => __('auth.failed'),
+                'login' => __('auth.failed'),
             ]);
         }
 
@@ -51,7 +65,7 @@ new #[Layout('layouts.auth')] class extends Component
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => __('auth.throttle', [
+            'login' => __('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),
@@ -60,25 +74,25 @@ new #[Layout('layouts.auth')] class extends Component
 
     protected function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->email).'|'.request()->ip());
+        return Str::transliterate(Str::lower($this->login).'|'.request()->ip());
     }
 }; ?>
 
 <div class="flex flex-col gap-6">
     <div class="flex flex-col items-center gap-2 text-center">
         <flux:heading size="lg">{{ __('Log in to your account') }}</flux:heading>
-        <flux:text>{{ __('Enter your email and password below to log in') }}</flux:text>
+        <flux:text>{{ __('Enter your email or username and password below to log in') }}</flux:text>
     </div>
 
     <form wire:submit="login" class="flex flex-col gap-6">
         <flux:input
-            wire:model="email"
-            :label="__('Email')"
-            type="email"
+            wire:model="login"
+            :label="__('Email or username')"
+            type="text"
             required
             autofocus
-            autocomplete="email"
-            placeholder="email@example.com"
+            autocomplete="username"
+            :placeholder="__('email@example.com')"
         />
 
         <flux:input
