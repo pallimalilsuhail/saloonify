@@ -27,9 +27,8 @@ use Shared\Traits\HasUlid;
  * @property string $name
  * @property string $email
  * @property Carbon|null $email_verified_at
- * @property string $workos_id
+ * @property string $password
  * @property string|null $remember_token
- * @property string $avatar
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Business|null $business
@@ -40,7 +39,6 @@ use Shared\Traits\HasUlid;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAvatar($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereBusinessId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmail($value)
@@ -51,12 +49,11 @@ use Shared\Traits\HasUlid;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRole($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUlid($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereWorkosId($value)
  *
  * @mixin \Eloquent
  */
-#[Fillable(['name', 'email', 'workos_id', 'avatar', 'business_id', 'role'])]
-#[Hidden(['workos_id', 'remember_token'])]
+#[Fillable(['name', 'email', 'password', 'business_id', 'role'])]
+#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */

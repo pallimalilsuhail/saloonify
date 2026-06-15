@@ -8,8 +8,4 @@ use Tests\TestCase;
 pest()->extend(TestCase::class)->in('Feature');
 pest()->extend(TestCase::class)->in('Unit');
 
-pest()->use(RefreshDatabase::class)->in('Feature/AuditLog');
-pest()->use(RefreshDatabase::class)->in('Feature/Businesses');
-pest()->use(RefreshDatabase::class)->in('Feature/Customers');
-pest()->use(RefreshDatabase::class)->in('Feature/DocumentRequests');
-pest()->use(RefreshDatabase::class)->in('Feature/Documents');
+pest()->use(RefreshDatabase::class)->in('Feature');

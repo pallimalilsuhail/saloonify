@@ -1,18 +1,28 @@
 <?php
 
-use App\Models\User;
-use Laravel\WorkOS\Http\Requests\AuthKitAccountDeletionRequest;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 new class extends Component {
+    public string $password = '';
+
     /**
-     * Delete the currently authenticated user.
+     * Delete the currently authenticated user after confirming their password.
      */
-    public function deleteUser(AuthKitAccountDeletionRequest $request): void
+    public function deleteUser(): void
     {
-        $request->delete(
-            using: fn (User $user) => $user->delete()
-        );
+        $this->validate([
+            'password' => ['required', 'string', 'current_password'],
+        ]);
+
+        $user = Auth::user();
+
+        Auth::logout();
+
+        $user->delete();
+
+        session()->invalidate();
+        session()->regenerateToken();
 
         $this->redirect('/', navigate: true);
     }
@@ -27,6 +37,16 @@ new class extends Component {
                 {{ __('Once your account is deleted, all of its resources and data will also be permanently deleted. Please confirm you would like to permanently delete your account.') }}
             </flux:subheading>
         </div>
+
+        <flux:input
+            wire:model="password"
+            :label="__('Password')"
+            type="password"
+            required
+            autocomplete="current-password"
+            :placeholder="__('Password')"
+            viewable
+        />
 
         <div class="flex justify-end space-x-2 rtl:space-x-reverse">
             <flux:modal.close>
