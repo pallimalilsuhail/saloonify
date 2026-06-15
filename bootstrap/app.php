@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\EnsureUserIsBusinessAdmin;
+use App\Http\Middleware\EnsureUserIsLocationAgent;
+use App\Http\Middleware\EnsureUserIsSuperAdmin;
+use App\Http\Middleware\TenantContext;
 use App\Modules\Logger\Middleware\RequestTracingMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,8 +21,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(RequestTracingMiddleware::class);
 
-        // Role-gate aliases (super_admin / business_admin / location_agent)
-        // are registered in I1.5 when their middleware is built.
+        // Bind tenant context after the session/auth middleware on web.
+        $middleware->appendToGroup('web', TenantContext::class);
+
+        $middleware->alias([
+            'super_admin' => EnsureUserIsSuperAdmin::class,
+            'business_admin' => EnsureUserIsBusinessAdmin::class,
+            'location_agent' => EnsureUserIsLocationAgent::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         Integration::handles($exceptions);
