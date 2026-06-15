@@ -242,7 +242,111 @@ flowchart LR
 
 ---
 
-## 7. Build stages
+## 7. Screens & wireframes
+
+Mobile-first, primary viewport ~375 px. One Laravel codebase — every screen below is a Livewire/Volt page; onboarding has **no screen** (endpoint only). Layout pattern: top bar (title + context), scrollable body, **bottom action bar** for the primary CTA (thumb reach). Tap targets ≥ 44 px.
+
+### Screen inventory
+
+| Screen | Route (indicative) | Role | Primary use case |
+| ------ | ------------------ | ---- | ---------------- |
+| Login | `/login` | all | email-or-username auth |
+| POS cart | `/pos` | agent/admin | build sale |
+| Item picker (modal) | within `/pos` | agent/admin | add service/combo line |
+| Customer quick-add (modal) | within `/pos` | agent/admin | find-or-create customer |
+| Payment | `/pos/payment` | agent/admin | CloseSale |
+| Receipt | `/sales/{id}/receipt` | agent/admin | view + WhatsApp |
+| Sales report | `/reports/sales` | business_admin | ComputeSalesReport |
+| Staff list / form | `/staff`, `/staff/create` | business_admin | CreateStaff / UpdateStaff |
+| Catalog: services | `/catalog/services` | business_admin | Create/Update Service |
+| Catalog: combos | `/catalog/combos` | business_admin | Create/Update Combo |
+| Chairs | `/chairs` | business_admin | Create/Update Chair |
+| Inventory | `/inventory` | admin (agent updates stock) | item + stock actions |
+| _Onboarding_ | `POST /api/admin/...` | super_admin | **endpoint, no screen** |
+
+### POS cart (the core)
+
+```
+┌─────────────────────────────┐
+│ ← Walk-in sale     Branch ▾  │  top bar: location context
+├─────────────────────────────┤
+│ 👤 + Add customer (optional) │  tap → quick-add modal
+├─────────────────────────────┤
+│ Haircut          AED 50  ✎ ✕ │  line: price, edit, remove
+│   stylist: Sara ▾  chair: 3 ▾│  stylist→chair auto-fills
+│ Beard Trim       AED 30  ✎ ✕ │
+│   stylist: Ali ▾   chair: 1 ▾│
+│ + Add service / combo        │  tap → item picker modal
+├─────────────────────────────┤
+│ Discount [ 10 ] (% | AED)    │  sale-level
+│ Gender  ( M ) ( F ) ( Child )│  required to checkout
+├─────────────────────────────┤
+│ Subtotal            AED 80   │
+│ Discount          − AED  8   │
+│ VAT 5%            + AED 3.60  │  live calc, fils-exact
+│ TOTAL               AED 75.60│
+├─────────────────────────────┤
+│ [   Checkout → Payment    ]  │  bottom bar; disabled if
+└─────────────────────────────┘  empty or gender unset
+```
+
+### Payment
+
+```
+┌─────────────────────────────┐
+│ ← Payment        Total 75.60 │
+├─────────────────────────────┤
+│ Cash   [ 75.60 ]             │
+│ Card   [  0.00 ]             │
+│  ─────────────────────────   │
+│ Paid 75.60   Due 0.00 ✓      │  sum must == total
+├─────────────────────────────┤
+│ [      Close sale         ]  │  disabled until paid==total
+└─────────────────────────────┘
+```
+
+### Receipt
+
+```
+┌─────────────────────────────┐
+│ ✓ Sale closed   INV-000123   │
+├─────────────────────────────┤
+│ Glow Salon · TRN 100xxxxxxxxx│
+│ 15 Jun 2026  ·  AED 75.60    │
+│ Haircut  Sara        50.00   │
+│ Beard    Ali         30.00   │
+│ Discount            − 8.00   │
+│ VAT 5%              + 3.60    │
+│ TOTAL                75.60   │
+├─────────────────────────────┤
+│ [ View PDF ]                 │  signed, expiring URL
+│ [ Send via WhatsApp ]        │  wa.me deep link
+└─────────────────────────────┘
+```
+
+### Sales report
+
+```
+┌─────────────────────────────┐
+│ Sales report                 │
+│ [ Today ▾ ] Loc▾ Stylist▾ ◔▾ │  filters
+├─────────────────────────────┤
+│ Gross 1,200  Disc 80         │
+│ VAT 56  Net 1,176            │  totals card
+├─────────────────────────────┤
+│ By method:  Cash 800 Card 376│
+│ By stylist: Sara 12c… Ali …  │  commission accrued
+│ By chair:   #1 420  #3 380   │  utilization
+│ Inventory:  Shampoo 2 ⚠ low  │  low-stock list
+├─────────────────────────────┤
+│ Lines …  (paginated)         │
+│ [ Export CSV ]               │
+└─────────────────────────────┘
+```
+
+> List/form screens (staff, catalog, chairs, inventory) share one shell: scrollable card list + "＋ Create" bottom action → single-column form with inline validation and a bottom **Save** bar. Not wireframed individually.
+
+## 8. Build stages
 
 Stage gating keeps the MVP shippable and the pilot honest.
 
@@ -259,7 +363,7 @@ Detailed issue/PR list per stage: `tasks.md`. Maps roughly S0→F0–F2, S1→F3
 
 ---
 
-## 8. Rules that must always hold (acceptance backbone)
+## 9. Rules that must always hold (acceptance backbone)
 
 - **No cross-business data leak** — ever. Proven by automated tests.
 - **Invoice numbers gapless + sequential** per business, even under concurrent closes.
@@ -270,7 +374,7 @@ Detailed issue/PR list per stage: `tasks.md`. Maps roughly S0→F0–F2, S1→F3
 
 ---
 
-## 9. Out of scope (MVP) → roadmap
+## 10. Out of scope (MVP) → roadmap
 
 **Not in MVP**: refunds/voids/credit notes, thermal printing, EOD cash close, appointments, native app, Arabic UI, prepaid packages, multi-currency/tax, public signup, self-serve location management, and **granular inventory** (per-unit auto-deduction on sale, batch/expiry tracking, retail item sale lines). Basic manual inventory (§4.8) **is** in MVP.
 
@@ -279,6 +383,6 @@ Detailed issue/PR list per stage: `tasks.md`. Maps roughly S0→F0–F2, S1→F3
 
 ---
 
-## 10. Open questions
+## 11. Open questions
 
 _None blocking MVP build. Add here if scope questions surface during the build; resolve before the affected feature starts._
