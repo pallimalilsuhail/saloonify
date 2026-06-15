@@ -12,8 +12,11 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table): void {
             $table->ulid()->unique()->after('id');
-            $table->foreignId('business_id')->nullable()->after('ulid')->constrained('businesses_businesses')->nullOnDelete();
-            $table->string('role', 32)->default('member')->after('business_id');
+            $table->foreignId('business_id')->nullable()->after('ulid')->constrained('businesses')->nullOnDelete();
+            $table->string('role', 32)->default('location_agent')->after('business_id');
+            $table->string('username')->nullable()->unique()->after('email');
+            $table->string('pin_hash')->nullable()->after('password');
+            $table->string('status', 16)->default('active')->after('role');
         });
     }
 
@@ -21,7 +24,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table): void {
             $table->dropForeign(['business_id']);
-            $table->dropColumn(['ulid', 'business_id', 'role']);
+            $table->dropColumn(['ulid', 'business_id', 'role', 'username', 'pin_hash', 'status']);
         });
     }
 };

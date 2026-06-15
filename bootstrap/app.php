@@ -2,9 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Modules\Businesses\Http\Middleware\EnsureOwner;
-use App\Modules\Businesses\Http\Middleware\EnsureSuperAdmin;
-use App\Modules\Common\Http\Middleware\EnsureBusinessMember;
 use App\Modules\Logger\Middleware\RequestTracingMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,11 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(RequestTracingMiddleware::class);
-        $middleware->alias([
-            'super_admin' => EnsureSuperAdmin::class,
-            'owner' => EnsureOwner::class,
-            'business_member' => EnsureBusinessMember::class,
-        ]);
+
+        // Role-gate aliases (super_admin / business_admin / location_agent)
+        // are registered in I1.5 when their middleware is built.
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         Integration::handles($exceptions);

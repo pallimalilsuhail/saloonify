@@ -10,19 +10,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('businesses_businesses', function (Blueprint $table): void {
+        Schema::create('businesses', function (Blueprint $table): void {
             $table->id();
             $table->ulid()->unique();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->string('status', 32)->default('active');
-            $table->softDeletes();
+            $table->char('trn', 15);
+            $table->char('country', 2)->default('AE');
+            $table->char('currency', 3)->default('AED');
+            $table->decimal('tax_rate', 5, 2)->default(5.00);
+            $table->json('invoice_template_settings_json')->nullable();
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('businesses_businesses');
+        Schema::dropIfExists('businesses');
     }
 };
