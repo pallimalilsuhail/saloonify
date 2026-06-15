@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path // .tool_response.filePath // empty'); case \"$f\" in */app/Models/*.php|*/app/Modules/*/Models/*.php) cd \"$(dirname \"$f\")\"; while [ \"$PWD\" != \"/\" ] && [ ! -f \"$PWD/artisan\" ]; do cd ..; done; [ -f \"$PWD/artisan\" ] && php artisan ide-helper:models --write --no-interaction --reset >/dev/null 2>&1 ;; esac; exit 0",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
