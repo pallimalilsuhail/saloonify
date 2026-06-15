@@ -13,13 +13,6 @@ use App\Modules\Businesses\Events\InvitationIssued;
 use App\Modules\Businesses\Events\InvitationRevoked;
 use App\Modules\Businesses\Events\MemberRemoved;
 use App\Modules\Businesses\Events\MemberRoleChanged;
-use App\Modules\Customers\Events\CustomerCreated;
-use App\Modules\Customers\Events\CustomerUpdated;
-use App\Modules\DocumentRequests\Events\UploadLinkGenerated;
-use App\Modules\DocumentRequests\Events\UploadLinkRevoked;
-use App\Modules\Documents\Events\DocumentDeleted;
-use App\Modules\Documents\Events\DocumentDownloaded;
-use App\Modules\Documents\Events\DocumentViewUrlIssued;
 use AvoqadoDev\UseCase\Contracts\Mediator;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
@@ -42,13 +35,6 @@ final class AuditEventSubscriber
     public function subscribe(Dispatcher $events): array
     {
         return [
-            UploadLinkGenerated::class => 'onUploadLinkGenerated',
-            UploadLinkRevoked::class => 'onUploadLinkRevoked',
-            DocumentDeleted::class => 'onDocumentDeleted',
-            DocumentDownloaded::class => 'onDocumentDownloaded',
-            DocumentViewUrlIssued::class => 'onDocumentViewUrlIssued',
-            CustomerCreated::class => 'onCustomerCreated',
-            CustomerUpdated::class => 'onCustomerUpdated',
             InvitationIssued::class => 'onInvitationIssued',
             InvitationConsumed::class => 'onInvitationConsumed',
             InvitationRevoked::class => 'onInvitationRevoked',
@@ -57,86 +43,6 @@ final class AuditEventSubscriber
             Login::class => 'onLogin',
             Failed::class => 'onLoginFailed',
         ];
-    }
-
-    public function onUploadLinkGenerated(UploadLinkGenerated $event): void
-    {
-        $this->record(
-            action: 'upload_link.generated',
-            actorId: $event->generatedById,
-            businessId: $event->businessId,
-            targetType: 'UploadSession',
-            targetId: $event->sessionId->toString(),
-            meta: ['customer_id' => $event->customerId->toString()],
-        );
-    }
-
-    public function onUploadLinkRevoked(UploadLinkRevoked $event): void
-    {
-        $this->record(
-            action: 'upload_link.revoked',
-            actorId: $event->revokedById,
-            businessId: $event->businessId,
-            targetType: 'UploadSession',
-            targetId: $event->sessionId->toString(),
-            meta: ['customer_id' => $event->customerId->toString()],
-        );
-    }
-
-    public function onDocumentDeleted(DocumentDeleted $event): void
-    {
-        $this->record(
-            action: 'document.deleted',
-            actorId: $event->actorId,
-            businessId: $event->businessId,
-            targetType: 'Document',
-            targetId: $event->documentId->toString(),
-        );
-    }
-
-    public function onDocumentDownloaded(DocumentDownloaded $event): void
-    {
-        $this->record(
-            action: 'document.downloaded',
-            actorId: $event->actorId,
-            businessId: $event->businessId,
-            targetType: 'Document',
-            targetId: $event->documentId->toString(),
-        );
-    }
-
-    public function onDocumentViewUrlIssued(DocumentViewUrlIssued $event): void
-    {
-        $this->record(
-            action: 'document.view_url_issued',
-            actorId: $event->actorId,
-            businessId: $event->businessId,
-            targetType: 'Document',
-            targetId: $event->documentId->toString(),
-        );
-    }
-
-    public function onCustomerCreated(CustomerCreated $event): void
-    {
-        $this->record(
-            action: 'customer.created',
-            actorId: $event->createdById,
-            businessId: $event->businessId,
-            targetType: 'Customer',
-            targetId: $event->customerId->toString(),
-        );
-    }
-
-    public function onCustomerUpdated(CustomerUpdated $event): void
-    {
-        $this->record(
-            action: 'customer.updated',
-            actorId: null,
-            businessId: $event->businessId,
-            targetType: 'Customer',
-            targetId: $event->customerId->toString(),
-            meta: ['changes' => $event->changes],
-        );
     }
 
     public function onInvitationIssued(InvitationIssued $event): void

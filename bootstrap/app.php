@@ -24,12 +24,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'owner' => EnsureOwner::class,
             'business_member' => EnsureBusinessMember::class,
         ]);
-
-        // Stateless public upload endpoints — auth is the unguessable
-        // token in the URL path; CSRF doesn't apply (no session).
-        $middleware->validateCsrfTokens(except: [
-            'api/u/*',
-        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         Integration::handles($exceptions);
