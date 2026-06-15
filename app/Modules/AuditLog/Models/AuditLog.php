@@ -51,7 +51,7 @@ final class AuditLog extends Model
 {
     use HasUlid, Unguarded;
 
-    protected $table = 'audit_logs_logs';
+    protected $table = 'audit_logs';
 
     public $timestamps = false;
 
