@@ -7,8 +7,8 @@ namespace App\Modules\Businesses\DTOs;
 use Shared\ValueObjects\Id;
 
 /**
- * Result of consuming an invite. Carries the two ids the WorkOS auth
- * route needs to log the user in and (later) record the audit event.
+ * Result of consuming an invite. Carries the two ids the auth
+ * flow needs to log the user in and (later) record the audit event.
  * The handler does not leak the User model — callers fetch it themselves
  * if they need the auth-shaped instance.
  */

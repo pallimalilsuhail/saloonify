@@ -23,10 +23,6 @@ class UserProcessor implements ProcessorInterface
 
         $record->extra['user_id'] = $user->getAuthIdentifier();
 
-        if (isset($user->workos_id)) {
-            $record->extra['workos_id'] = $user->workos_id;
-        }
-
         return $record;
     }
 }
