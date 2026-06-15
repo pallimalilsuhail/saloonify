@@ -30,12 +30,6 @@
                             {{ __('Audit log') }}
                         </flux:sidebar.item>
                     @endif
-
-                    @if (auth()->user()->business_id)
-                        <flux:sidebar.item icon="user-group" :href="route('customers.index')" :current="request()->routeIs('customers.*')" wire:navigate>
-                            {{ __('Customers') }}
-                        </flux:sidebar.item>
-                    @endif
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 
