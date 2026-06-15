@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Shared\Concerns\BelongsToBusiness;
 use Shared\Traits\HasUlid;
 use Shared\Traits\Unguarded;
 
@@ -22,7 +23,7 @@ use Shared\Traits\Unguarded;
  */
 final class Location extends Model
 {
-    use HasUlid, SoftDeletes, Unguarded;
+    use BelongsToBusiness, HasUlid, SoftDeletes, Unguarded;
 
     protected $table = 'locations';
 

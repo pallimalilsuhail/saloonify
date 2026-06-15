@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\User;
+use App\Modules\Businesses\Enums\UserRole;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Volt\Volt;
 
@@ -38,7 +39,7 @@ test('user cannot authenticate with an invalid password', function (): void {
 });
 
 test('authenticated user can log out', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->create(['role' => UserRole::SuperAdmin->value]);
 
     $this->actingAs($user)
         ->post('/logout')
