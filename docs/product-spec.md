@@ -64,10 +64,10 @@ Each feature notes its **surface**: `endpoint` (no UI in MVP) or `mobile UI`.
 
 ### 4.1 Salon onboarding — *surface: endpoint only*
 
-The SaaS owner brings a new salon online with **one call**. No screen.
+The SaaS owner brings a new salon online via endpoints. No screen. Onboarding and location creation are **decoupled** — onboard the business first, then add one or more locations.
 
-- **Onboard business**: `POST` with salon name, TRN (15 digits), and the first admin's name + login + password → creates the **business**, its **first location**, and the **business_admin user** (ready to log in immediately). Defaults applied: `country=AE`, `currency=AED`, `tax_rate=5.00`.
-- **Add location later**: salon phones us; SaaS owner calls the **add-location** endpoint. (Self-serve location management by the salon comes post-MVP, gated by subscription tier.)
+- **Onboard business**: `POST` with salon name, TRN (15 digits), and the first admin's name + login + password → creates the **business** + the **business_admin user** (ready to log in immediately). Defaults applied: `country=AE`, `currency=AED`, `tax_rate=5.00`.
+- **Add location**: SaaS owner calls the **add-location** endpoint (by business ULID) for each branch. (Self-serve location management by the salon comes post-MVP, gated by subscription tier.)
 
 ```mermaid
 sequenceDiagram
@@ -76,11 +76,11 @@ sequenceDiagram
     participant DB as DB
     SO->>API: POST {salon name, TRN, admin name+login+password}
     API->>API: validate TRN=15 digits, login unique
-    API->>DB: create business (AE/AED/5%)
-    API->>DB: create first location
-    API->>DB: create business_admin user (hashed password)
+    API->>DB: create business (AE/AED/5%) + business_admin (hashed)
     API-->>SO: {business_id, login} — salon can log in now
-    Note over SO,DB: later, on request → POST add-location
+    SO->>API: POST /admin/businesses/{business}/locations
+    API->>DB: create location (validated address + opening hours)
+    API-->>SO: {location_id}
 ```
 
 ### 4.2 Staff management — *surface: mobile UI (business_admin)*

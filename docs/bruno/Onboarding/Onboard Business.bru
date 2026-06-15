@@ -1,0 +1,35 @@
+meta {
+  name: Onboard Business
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/admin/businesses
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Glow Salon",
+    "trn": "100123456700003",
+    "admin": {
+      "name": "Olivia Owner",
+      "login": "olivia@glow.test",
+      "password": "password123"
+    }
+  }
+}
+
+docs {
+  Super-admin only (session auth + CSRF). Creates the business + its first
+  business_admin. Returns { business_id, login }. Add locations afterwards
+  via "Add Location". `admin.login` may be an email or a username (a
+  synthetic email is generated for username-only admins).
+}
