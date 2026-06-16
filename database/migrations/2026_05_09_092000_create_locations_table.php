@@ -10,23 +10,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('businesses', function (Blueprint $table): void {
+        Schema::create('locations', function (Blueprint $table): void {
             $table->id();
             $table->ulid()->unique();
+            $table->foreignId('business_id')->constrained('businesses')->cascadeOnDelete();
             $table->string('name');
-            $table->string('slug')->unique();
-            $table->char('trn', 15);
-            $table->char('country', 2)->default('AE');
-            $table->char('currency', 3)->default('AED');
-            $table->decimal('tax_rate', 5, 2)->default(5.00);
-            $table->json('invoice_template_settings_json')->nullable();
+            $table->json('address_json');
+            $table->json('opening_hours_json');
             $table->softDeletes();
             $table->timestamps();
+
+            $table->index('business_id');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('businesses');
+        Schema::dropIfExists('locations');
     }
 };

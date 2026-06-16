@@ -15,21 +15,6 @@
                     <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </flux:sidebar.item>
-
-                    @if (auth()->user()->isSuperAdmin())
-                        <flux:sidebar.item icon="building-office" :href="route('admin.businesses.index')" :current="request()->routeIs('admin.businesses.*')" wire:navigate>
-                            {{ __('Businesses') }}
-                        </flux:sidebar.item>
-                    @endif
-
-                    @if (auth()->user()->isOwner())
-                        <flux:sidebar.item icon="users" :href="route('members.index')" :current="request()->routeIs('members.*')" wire:navigate>
-                            {{ __('Members') }}
-                        </flux:sidebar.item>
-                        <flux:sidebar.item icon="shield-check" :href="route('audit-logs.index')" :current="request()->routeIs('audit-logs.*')" wire:navigate>
-                            {{ __('Audit log') }}
-                        </flux:sidebar.item>
-                    @endif
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

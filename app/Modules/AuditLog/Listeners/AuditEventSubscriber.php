@@ -8,11 +8,6 @@ use App\Models\User;
 use App\Modules\AuditLog\Enums\ActorType;
 use App\Modules\AuditLog\Support\RequestContext;
 use App\Modules\AuditLog\UseCases\RecordAuditEvent\RecordAuditEvent;
-use App\Modules\Businesses\Events\InvitationConsumed;
-use App\Modules\Businesses\Events\InvitationIssued;
-use App\Modules\Businesses\Events\InvitationRevoked;
-use App\Modules\Businesses\Events\MemberRemoved;
-use App\Modules\Businesses\Events\MemberRoleChanged;
 use AvoqadoDev\UseCase\Contracts\Mediator;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
@@ -21,10 +16,12 @@ use Shared\ValueObjects\Id;
 use Throwable;
 
 /**
- * Maps every sensitive domain event onto an AuditLog row via
- * RecordAuditEvent. Listeners never throw — failure to log must not
- * break the originating action. The catch is intentional and silent;
- * the underlying logger captures the exception via Sentry / file logs.
+ * Maps sensitive domain events onto an AuditLog row via RecordAuditEvent.
+ * Listeners never throw — failure to log must not break the originating
+ * action; the catch is intentional and silent (the logger captures it).
+ *
+ * Domain-specific subscriptions (sales, staff, catalog, …) are added as
+ * those modules emit their events.
  */
 final class AuditEventSubscriber
 {
@@ -35,71 +32,9 @@ final class AuditEventSubscriber
     public function subscribe(Dispatcher $events): array
     {
         return [
-            InvitationIssued::class => 'onInvitationIssued',
-            InvitationConsumed::class => 'onInvitationConsumed',
-            InvitationRevoked::class => 'onInvitationRevoked',
-            MemberRoleChanged::class => 'onMemberRoleChanged',
-            MemberRemoved::class => 'onMemberRemoved',
             Login::class => 'onLogin',
             Failed::class => 'onLoginFailed',
         ];
-    }
-
-    public function onInvitationIssued(InvitationIssued $event): void
-    {
-        $this->record(
-            action: 'invitation.issued',
-            actorId: $event->invitedById,
-            businessId: $event->businessId,
-            targetType: 'Invitation',
-            targetId: $event->invitationId->toString(),
-            meta: ['email' => $event->email, 'role' => $event->role->value],
-        );
-    }
-
-    public function onInvitationConsumed(InvitationConsumed $event): void
-    {
-        $this->record(
-            action: 'invitation.consumed',
-            actorId: $event->userId,
-            businessId: $event->businessId,
-            targetType: 'Invitation',
-            targetId: $event->invitationId->toString(),
-        );
-    }
-
-    public function onInvitationRevoked(InvitationRevoked $event): void
-    {
-        $this->record(
-            action: 'invitation.revoked',
-            actorId: $event->revokedById,
-            businessId: $event->businessId,
-            targetType: 'Invitation',
-            targetId: $event->invitationId->toString(),
-        );
-    }
-
-    public function onMemberRoleChanged(MemberRoleChanged $event): void
-    {
-        $this->record(
-            action: 'member.role_changed',
-            actorId: $event->changedById,
-            businessId: $event->businessId,
-            targetType: 'User',
-            targetId: $event->memberId->toString(),
-            meta: ['from' => $event->fromRole->value, 'to' => $event->toRole->value],
-        );
-    }
-
-    public function onMemberRemoved(MemberRemoved $event): void
-    {
-        $this->record(
-            action: 'member.removed',
-            actorId: $event->removedById,
-            businessId: $event->businessId,
-            targetType: 'User',
-            targetId: $event->memberId->toString(),
-        );
     }
 
     public function onLogin(Login $event): void

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Factories\Businesses;
 
-use App\Modules\Businesses\Enums\BusinessStatus;
 use App\Modules\Businesses\Models\Business;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -26,7 +25,11 @@ final class BusinessFactory extends Factory
         return [
             'name' => $name,
             'slug' => Str::slug($name).'-'.Str::lower(Str::random(6)),
-            'status' => BusinessStatus::Active->value,
+            'trn' => (string) $this->faker->numerify(str_repeat('#', 15)),
+            'country' => 'AE',
+            'currency' => 'AED',
+            'tax_rate' => 5.00,
+            'invoice_template_settings_json' => null,
         ];
     }
 }

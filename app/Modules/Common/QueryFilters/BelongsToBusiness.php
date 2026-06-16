@@ -25,7 +25,7 @@ final readonly class BelongsToBusiness
     {
         $query->where('business_id', function ($query): void {
             $query->select('id')
-                ->from('businesses_businesses')
+                ->from('businesses')
                 ->where('ulid', $this->businessId->toString())
                 ->limit(1);
         });

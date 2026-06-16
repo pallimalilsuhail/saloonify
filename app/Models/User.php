@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Modules\Businesses\Enums\UserRole;
+use App\Modules\Businesses\Enums\UserStatus;
 use App\Modules\Businesses\Models\Business;
+use App\Modules\Businesses\Models\Location;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
@@ -52,7 +55,7 @@ use Shared\Traits\HasUlid;
  *
  * @mixin \Eloquent
  */
-#[Fillable(['name', 'email', 'password', 'business_id', 'role'])]
+#[Fillable(['name', 'email', 'username', 'password', 'business_id', 'role', 'status'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -72,19 +75,24 @@ class User extends Authenticatable
         return $this->belongsTo(Business::class);
     }
 
+    public function locations(): BelongsToMany
+    {
+        return $this->belongsToMany(Location::class, 'location_user');
+    }
+
     public function isSuperAdmin(): bool
     {
         return $this->role->is(UserRole::SuperAdmin);
     }
 
-    public function isOwner(): bool
+    public function isBusinessAdmin(): bool
     {
-        return $this->role->is(UserRole::Owner);
+        return $this->role->is(UserRole::BusinessAdmin);
     }
 
-    public function isMember(): bool
+    public function isLocationAgent(): bool
     {
-        return $this->role->is(UserRole::Member);
+        return $this->role->is(UserRole::LocationAgent);
     }
 
     /**
@@ -96,6 +104,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
+            'status' => UserStatus::class,
         ];
     }
 }

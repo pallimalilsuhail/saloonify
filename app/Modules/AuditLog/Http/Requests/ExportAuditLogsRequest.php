@@ -15,7 +15,7 @@ final class ExportAuditLogsRequest extends FormRequest
     {
         $user = $this->user();
 
-        return $user !== null && $user->business_id !== null && $user->isOwner();
+        return $user !== null && $user->business_id !== null && $user->isBusinessAdmin();
     }
 
     /**
