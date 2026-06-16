@@ -9,8 +9,10 @@ use Database\Factories\Businesses\BusinessFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Shared\Traits\HasUlid;
+use Shared\Traits\Unguarded;
 
 /**
  * @property int $id
@@ -26,19 +28,9 @@ use Shared\Traits\HasUlid;
 final class Business extends Model
 {
     /** @use HasFactory<BusinessFactory> */
-    use HasFactory, HasUlid;
+    use HasFactory, HasUlid, SoftDeletes, Unguarded;
 
     protected $table = 'businesses';
-
-    protected $fillable = [
-        'name',
-        'slug',
-        'trn',
-        'country',
-        'currency',
-        'tax_rate',
-        'invoice_template_settings_json',
-    ];
 
     protected $casts = [
         'tax_rate' => 'decimal:2',

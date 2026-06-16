@@ -30,9 +30,13 @@ test('location round-trips json and cascades on business delete', function (): v
 
     expect($location->fresh()->address_json['city'])->toBe('Dubai');
 
+    // soft delete leaves the location intact
     $business->delete();
+    expect(Location::find($location->id))->not->toBeNull();
 
-    expect(Location::find($location->id))->toBeNull();
+    // hard delete cascades at the DB level
+    $business->forceDelete();
+    expect(Location::withTrashed()->find($location->id))->toBeNull();
 });
 
 test('user belongs to many locations and casts role + status', function (): void {

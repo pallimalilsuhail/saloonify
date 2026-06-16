@@ -8,7 +8,9 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Shared\Traits\HasUlid;
+use Shared\Traits\Unguarded;
 
 /**
  * @property int $id
@@ -20,16 +22,9 @@ use Shared\Traits\HasUlid;
  */
 final class Location extends Model
 {
-    use HasUlid;
+    use HasUlid, SoftDeletes, Unguarded;
 
     protected $table = 'locations';
-
-    protected $fillable = [
-        'business_id',
-        'name',
-        'address_json',
-        'opening_hours_json',
-    ];
 
     protected $casts = [
         'address_json' => 'array',

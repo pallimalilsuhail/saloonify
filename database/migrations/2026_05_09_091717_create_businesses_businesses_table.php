@@ -20,6 +20,7 @@ return new class extends Migration
             $table->char('currency', 3)->default('AED');
             $table->decimal('tax_rate', 5, 2)->default(5.00);
             $table->json('invoice_template_settings_json')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

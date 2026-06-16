@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->json('address_json');
             $table->json('opening_hours_json');
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index('business_id');
