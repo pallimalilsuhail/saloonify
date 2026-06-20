@@ -21,9 +21,6 @@ final class OnboardBusinessController
             password: $request->password(),
         ));
 
-        return response()->json([
-            'business_id' => $result->businessId,
-            'login' => $result->login,
-        ], 201);
+        return response()->json($result, 201);
     }
 }

@@ -44,7 +44,7 @@ Legend: **PK** primary key · **FK** foreign key (→target, on-delete) · **U**
 | business_id | BIGINT UNSIGNED | NN | | FK→businesses (cascade), I | |
 | name | VARCHAR(255) | NN | | | |
 | address_json | JSON | NN | | | {street, city, emirate, country} |
-| opening_hours_json | JSON | NN | | | 7 days × {open, close} or closed |
+| opening_hours_json | JSON | NN | | | per-day list of {open, close} ranges (split shifts) or closed |
 | timestamps | | | | | |
 
 ### §users  (extends Laravel default users)
@@ -301,7 +301,7 @@ Stable IDs. Tasks cite the ID; each rule should map to ≥1 automated test. Type
 | BR-BIZ-04 | INV | `slug` globally unique; collision retries with numeric suffix. |
 | BR-BIZ-05 | R | TRN is NOT unique across businesses (duplicates allowed). |
 | BR-LOC-01 | V | `address_json` = {street, city, emirate, country}. |
-| BR-LOC-02 | V | `opening_hours_json` = 7 days; each open day has `open < close`. |
+| BR-LOC-02 | V | `opening_hours_json` = per-day list of same-day ranges; each range has `open < close`; ranges within a day must not overlap. |
 | BR-LOC-03 | INV | Location `country` mirrors its business country. |
 
 ### Staff

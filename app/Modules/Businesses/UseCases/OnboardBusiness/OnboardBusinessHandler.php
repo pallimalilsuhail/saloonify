@@ -12,35 +12,37 @@ use App\Modules\Businesses\Models\Business;
 use App\Modules\Staff\Support\SyntheticEmail;
 use AvoqadoDev\UseCase\Contracts\Request;
 use AvoqadoDev\UseCase\Contracts\RequestHandler;
+use Shared\ValueObjects\Email;
+use Shared\ValueObjects\Id;
 
 final class OnboardBusinessHandler implements RequestHandler
 {
     /**
-     * Creates the business + its first admin. Locations are added via the
-     * dedicated AddLocation endpoint (decoupled). Wrapped in a DB
-     * transaction by the WithDatabaseTransaction middleware.
-     *
      * @param  OnboardBusiness  $request
      */
     public function handle(Request $request): OnboardedBusiness
     {
+        $businessId = Id::generate();
+
+        // Capture the row: we still need its auto-increment id (FK) and the boot-generated slug.
         $business = Business::create([
+            'ulid' => $businessId->toString(),
             'name' => $request->name,
             'trn' => $request->trn,
         ]);
 
-        $isEmail = filter_var($request->login, FILTER_VALIDATE_EMAIL) !== false;
+        $email = Email::tryFrom($request->login);
 
         User::create([
             'name' => $request->adminName,
-            'email' => $isEmail ? $request->login : SyntheticEmail::make($request->login, $business->slug),
-            'username' => $isEmail ? null : $request->login,
+            'email' => $email?->toString() ?? SyntheticEmail::make($request->login, $business->slug),
+            'username' => $email !== null ? null : $request->login,
             'password' => $request->password,
             'role' => UserRole::BusinessAdmin->value,
             'status' => UserStatus::Active->value,
             'business_id' => $business->id,
         ]);
 
-        return new OnboardedBusiness($business->ulid, $request->login);
+        return new OnboardedBusiness($businessId, $request->login);
     }
 }

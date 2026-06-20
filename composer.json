@@ -18,7 +18,8 @@
         "livewire/volt": "^1.10",
         "moneyphp/money": "^4.9",
         "sentry/sentry-laravel": "^4.25",
-        "simplesoftwareio/simple-qrcode": "^4.2"
+        "simplesoftwareio/simple-qrcode": "^4.2",
+        "spatie/opening-hours": "^4.2"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.7",

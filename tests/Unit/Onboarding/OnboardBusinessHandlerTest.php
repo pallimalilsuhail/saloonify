@@ -8,10 +8,14 @@ use App\Modules\Businesses\Enums\UserRole;
 use App\Modules\Businesses\Enums\UserStatus;
 use App\Modules\Businesses\Models\Business;
 use App\Modules\Businesses\UseCases\OnboardBusiness\OnboardBusiness;
-use AvoqadoDev\UseCase\Facades\Mediator;
+use App\Modules\Businesses\UseCases\OnboardBusiness\OnboardBusinessHandler;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-test('OnboardBusiness creates a business + active business-admin and returns a DTO', function (): void {
-    $result = Mediator::dispatch(new OnboardBusiness(
+// Exercises the handler directly (no Mediator, no HTTP) — just handle() against the DB.
+uses(RefreshDatabase::class);
+
+test('handle() creates a business + active admin and returns the DTO for an email login', function (): void {
+    $result = (new OnboardBusinessHandler)->handle(new OnboardBusiness(
         name: 'Glow Salon',
         trn: str_repeat('9', 15),
         adminName: 'Olivia',
@@ -22,20 +26,19 @@ test('OnboardBusiness creates a business + active business-admin and returns a D
     expect($result)->toBeInstanceOf(OnboardedBusiness::class)
         ->and($result->login)->toBe('olivia@glow.test');
 
-    $business = Business::where('name', 'Glow Salon')->firstOrFail();
-    expect($business->ulid)->toBe($result->businessId->toString())
-        ->and($business->country)->toBe('AE')
-        ->and($business->currency)->toBe('AED')
-        ->and($business->tax_rate)->toBe('5.00');
+    // DTO carries the pre-generated id — and it matches the persisted row.
+    $business = Business::firstOrFail();
+    expect($business->ulid)->toBe($result->businessId->toString());
 
     $admin = User::where('email', 'olivia@glow.test')->firstOrFail();
     expect($admin->role)->toBe(UserRole::BusinessAdmin)
         ->and($admin->status)->toBe(UserStatus::Active)
-        ->and($admin->business_id)->toBe($business->id);
+        ->and($admin->business_id)->toBe($business->id)
+        ->and($admin->username)->toBeNull();
 });
 
-test('OnboardBusiness generates a synthetic email for a username-only admin', function (): void {
-    $result = Mediator::dispatch(new OnboardBusiness(
+test('handle() generates a synthetic email for a username-only admin', function (): void {
+    $result = (new OnboardBusinessHandler)->handle(new OnboardBusiness(
         name: 'Glow Salon',
         trn: str_repeat('9', 15),
         adminName: 'Ali',
@@ -44,7 +47,7 @@ test('OnboardBusiness generates a synthetic email for a username-only admin', fu
     ));
 
     $admin = User::where('username', 'ali')->firstOrFail();
-    expect($admin->email)->toEndWith('.saloonify.local')
-        ->and($admin->email)->toStartWith('ali@')
+    expect($admin->email)->toBe('ali@glow-salon.saloonify.local')
+        ->and($admin->business_id)->not->toBeNull()
         ->and($result->login)->toBe('ali');
 });

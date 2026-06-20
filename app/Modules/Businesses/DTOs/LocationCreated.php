@@ -4,9 +4,20 @@ declare(strict_types=1);
 
 namespace App\Modules\Businesses\DTOs;
 
-final readonly class LocationCreated
+use JsonSerializable;
+use Shared\ValueObjects\Id;
+
+final readonly class LocationCreated implements JsonSerializable
 {
     public function __construct(
-        public string $locationId,
+        public Id $locationId,
     ) {}
+
+    /**
+     * @return array<string, string>
+     */
+    public function jsonSerialize(): array
+    {
+        return ['location_id' => $this->locationId->toString()];
+    }
 }

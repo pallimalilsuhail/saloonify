@@ -9,7 +9,7 @@ use App\Modules\Businesses\Models\Business;
 use App\Modules\Businesses\Models\Location;
 use AvoqadoDev\UseCase\Contracts\Request;
 use AvoqadoDev\UseCase\Contracts\RequestHandler;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Shared\ValueObjects\Id;
 
 final class AddLocationHandler implements RequestHandler
 {
@@ -18,19 +18,21 @@ final class AddLocationHandler implements RequestHandler
      */
     public function handle(Request $request): LocationCreated
     {
-        $business = Business::query()->where('ulid', $request->businessUlid)->first();
+        $business = Business::query()
+            ->where('ulid', $request->businessId->toString())
+            ->firstOrFail();
 
-        if ($business === null) {
-            throw (new ModelNotFoundException)->setModel(Business::class, [$request->businessUlid]);
-        }
+        // Generate the id up front so we own it without reading the row back.
+        $locationId = Id::generate();
 
-        $location = Location::create([
+        Location::create([
+            'ulid' => $locationId->toString(),
             'business_id' => $business->id,
             'name' => $request->name,
             'address_json' => $request->address->toArray(),
             'opening_hours_json' => $request->openingHours->toArray(),
         ]);
 
-        return new LocationCreated($location->ulid);
+        return new LocationCreated($locationId);
     }
 }

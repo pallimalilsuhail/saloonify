@@ -26,12 +26,12 @@ function locationBody(array $overrides = []): array
     return array_replace_recursive([
         'name' => 'Main Branch',
         'address' => ['street' => '1 St', 'city' => 'Dubai', 'emirate' => 'Dubai', 'country' => 'AE'],
-        'opening_hours' => ['mon' => ['open' => '09:00', 'close' => '21:00']],
+        'opening_hours' => ['mon' => [['open' => '09:00', 'close' => '21:00']]],
     ], $overrides);
 }
 
 test('super-admin onboards a business + admin (no location)', function (): void {
-    $this->actingAs(superAdminUser())
+    $response = $this->actingAs(superAdminUser())
         ->postJson('/admin/businesses', onboardBody())
         ->assertCreated()
         ->assertJsonStructure(['business_id', 'login']);
@@ -40,7 +40,26 @@ test('super-admin onboards a business + admin (no location)', function (): void 
     expect($admin->role)->toBe(UserRole::BusinessAdmin)
         ->and($admin->business_id)->not->toBeNull();
 
+    // The response (serialized straight from the OnboardedBusiness DTO) carries the real ids.
+    $response->assertJson([
+        'business_id' => $admin->business->ulid,
+        'login' => 'olivia@glow.test',
+    ]);
+
     expect(Auth::attempt(['email' => 'olivia@glow.test', 'password' => 'password123']))->toBeTrue();
+});
+
+test('super-admin onboards a business with a username login (not an email)', function (): void {
+    $this->actingAs(superAdminUser())
+        ->postJson('/admin/businesses', onboardBody(['admin' => ['login' => 'olivia']]))
+        ->assertCreated()
+        ->assertJson(['login' => 'olivia']);
+
+    // Username branch: username is set and a synthetic email is generated for it.
+    $admin = User::where('username', 'olivia')->firstOrFail();
+    expect($admin->role)->toBe(UserRole::BusinessAdmin)
+        ->and($admin->email)->not->toBe('olivia')
+        ->and($admin->email)->toContain('@');
 });
 
 test('non-super-admin cannot onboard', function (): void {
@@ -65,8 +84,15 @@ test('super-admin adds a location to a business', function (): void {
 
 test('add location to unknown business returns 404', function (): void {
     $this->actingAs(superAdminUser())
-        ->postJson('/admin/businesses/01JUNKULIDDOESNOTEXIST00/locations', locationBody())
+        ->postJson('/admin/businesses/00000000000000000000000000/locations', locationBody())
         ->assertNotFound();
+});
+
+test('add location with a malformed business id is a validation error', function (): void {
+    $this->actingAs(superAdminUser())
+        ->postJson('/admin/businesses/01JUNKULIDDOESNOTEXIST00/locations', locationBody())
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('business');
 });
 
 test('non-super-admin cannot add a location', function (): void {

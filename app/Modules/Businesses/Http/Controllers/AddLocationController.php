@@ -14,14 +14,12 @@ final class AddLocationController
     public function __invoke(AddLocationRequest $request): JsonResponse
     {
         $result = Mediator::dispatch(new AddLocation(
-            businessUlid: $request->businessUlid(),
+            businessId: $request->businessId(),
             name: $request->locationName(),
             address: $request->address(),
             openingHours: $request->openingHours(),
         ));
 
-        return response()->json([
-            'location_id' => $result->locationId,
-        ], 201);
+        return response()->json($result, 201);
     }
 }
