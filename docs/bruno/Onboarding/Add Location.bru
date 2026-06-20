@@ -1,0 +1,45 @@
+meta {
+  name: Add Location
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/admin/businesses/:business/locations
+  body: json
+  auth: none
+}
+
+params:path {
+  business: BUSINESS_ULID
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Main Branch",
+    "address": {
+      "street": "1 Sheikh Zayed Rd",
+      "city": "Dubai",
+      "emirate": "Dubai",
+      "country": "AE"
+    },
+    "opening_hours": {
+      "mon": [{ "open": "09:00", "close": "13:00" }, { "open": "16:00", "close": "21:00" }],
+      "tue": [{ "open": "09:00", "close": "21:00" }]
+    }
+  }
+}
+
+docs {
+  Super-admin only. Adds a location to an existing business identified by
+  its ULID in the path. Returns { location_id }. Malformed ULID -> 422;
+  unknown business -> 404.
+  opening_hours: per-day list of same-day { open, close } ranges (split
+  shifts) in HH:MM. open must precede close; ranges within a day must not
+  overlap (validated via spatie/opening-hours).
+}

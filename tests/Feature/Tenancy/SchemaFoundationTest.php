@@ -25,7 +25,7 @@ test('location round-trips json and cascades on business delete', function (): v
         'business_id' => $business->id,
         'name' => 'Branch 1',
         'address_json' => ['street' => 'A St', 'city' => 'Dubai', 'emirate' => 'Dubai', 'country' => 'AE'],
-        'opening_hours_json' => ['mon' => ['open' => '09:00', 'close' => '21:00']],
+        'opening_hours_json' => ['mon' => [['open' => '09:00', 'close' => '21:00']]],
     ]);
 
     expect($location->fresh()->address_json['city'])->toBe('Dubai');
@@ -46,7 +46,7 @@ test('user belongs to many locations and casts role + status', function (): void
         'business_id' => $business->id,
         'name' => $name,
         'address_json' => ['street' => 'x', 'city' => 'Dubai', 'emirate' => 'Dubai', 'country' => 'AE'],
-        'opening_hours_json' => ['mon' => ['open' => '09:00', 'close' => '21:00']],
+        'opening_hours_json' => ['mon' => [['open' => '09:00', 'close' => '21:00']]],
     ]);
 
     $a = $makeLocation('Branch A');

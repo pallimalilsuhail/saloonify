@@ -14,7 +14,7 @@ function makeLocation(Business $business, string $name = 'Branch'): Location
         'business_id' => $business->id,
         'name' => $name,
         'address_json' => ['street' => 'x', 'city' => 'Dubai', 'emirate' => 'Dubai', 'country' => 'AE'],
-        'opening_hours_json' => ['mon' => ['open' => '09:00', 'close' => '21:00']],
+        'opening_hours_json' => ['mon' => [['open' => '09:00', 'close' => '21:00']]],
     ]);
 }
 

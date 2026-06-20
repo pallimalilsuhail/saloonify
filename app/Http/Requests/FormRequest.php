@@ -32,8 +32,5 @@ use Shared\ValueObjects\PhoneNumber;
  */
 abstract class FormRequest extends BaseFormRequest
 {
-    public function getBusinessId(): Id
-    {
-        return $this->asRouteId('business');
-    }
+    //
 }

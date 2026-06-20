@@ -6,10 +6,12 @@ namespace App\Modules\Businesses\Models;
 
 use App\Models\User;
 use Database\Factories\Businesses\BusinessFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Shared\Traits\HasUlid;
 use Shared\Traits\Unguarded;
@@ -22,8 +24,37 @@ use Shared\Traits\Unguarded;
  * @property string $trn
  * @property string $country
  * @property string $currency
- * @property string $tax_rate
- * @property array<string, mixed>|null $invoice_template_settings_json
+ * @property numeric $tax_rate
+ * @property array<array-key, mixed>|null $invoice_template_settings_json
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Location> $locations
+ * @property-read int|null $locations_count
+ * @property-read Collection<int, User> $users
+ * @property-read int|null $users_count
+ *
+ * @method static \Database\Factories\Businesses\BusinessFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereCountry($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereInvoiceTemplateSettingsJson($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereTaxRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereTrn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereUlid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business withoutTrashed()
+ *
+ * @mixin \Eloquent
  */
 final class Business extends Model
 {
